@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>My Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 80px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+      border: 1px solid #333;
+      text-decoration: none;
+      color: white;
+    }
+
+    .card:hover {
+      background-color: #2a2a2a;
+      transform: translateY(-5px);
+    }
+
+    .card i {
+      font-size: 28px;
+      margin-bottom: 15px;
+      display: block;
+      color: #ccc;
+    }
+
+    .card span {
+      font-size: 16px;
+    }
+
+    .bottom-actions {
+      border-top: 1px solid #444;
+      padding-top: 30px;
+    }
+
+    .logout-btn,
+    .delete-btn {
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 15px;
+      margin: 10px;
+    }
+
+    .logout-btn:hover,
+    .delete-btn:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Page</h1>
+    <div class="grid">
+      <a href="orderhistory.html" class="card"><i class="fas fa-box"></i><span>Order History</span></a>
+      <a href="wishlist.html" class="card"><i class="fas fa-heart"></i><span>Wishlist</span></a>
+      <a href="accountinformation.html" class="card"><i class="fas fa-user"></i><span>Account Information</span></a>
+      <a href="emailaddress.html" class="card"><i class="fas fa-envelope"></i><span>Email Address</span></a>
+      <a href="password.html" class="card"><i class="fas fa-lock"></i><span>Password</span></a>
+      <a href="shippingaddress.html" class="card"><i class="fas fa-map-marker-alt"></i><span>Shipping Address</span></a>
+      <a href="restocknotifications.html" class="card"><i class="fas fa-bell"></i><span>Restock Notifications</span></a>
+    </div>
+
+    <div class="bottom-actions" style="text-align: center;">
+      <button class="logout-btn" onclick="logout()">Log out</button>
+      <button class="delete-btn" onclick="deleteAccount()">Delete Account</button>
+    </div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
+      alert("로그아웃 되었습니다.");
+      location.href = "login.html";
+    }
+
+    function deleteAccount() {
+      if (confirm("정말로 계정을 삭제하시겠습니까?")) {
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
+        alert("계정이 삭제되었습니다.");
+        location.href = "signup.html";
+      }
+    }
+  </script>
+</body>
+</html>
