@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Minimal Dark Shop</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    h1 { margin-bottom: 30px; font-size: 24px; }
+    .login-box {
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 8px;
+      display: flex;
+      gap: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 260px;
+    }
+    .login-form input {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #444;
+      background: #000;
+      color: #fff;
+    }
+    .login-form button {
+      padding: 12px;
+      font-size: 14px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    .login-form button:hover {
+      background: #666;
+    }
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      justify-content: center;
+    }
+    .social-login button {
+      padding: 10px;
+      font-size: 14px;
+      background: #fff;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .social-login button img {
+      width: 18px;
+      height: 18px;
+    }
+    .help-text {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    .help-text a {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .create-account {
+      margin-top: 30px;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Log in</h1>
+  <div class="login-box">
+    <form class="login-form">
+      <div>
+        <label for="email">Email address</label><br>
+        <input type="email" id="email" placeholder="Email address" required>
+      </div>
+      <div>
+        <label for="password">Password</label><br>
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+      <button type="submit">Log in</button>
+      <div class="help-text">
+        Forgot your password? Click <a href="#">here</a>.<br>
+        Previous member? Activate via <a href="#">this page</a>.
+      </div>
+    </form>
+
+    <div class="social-login">
+      <button><img src="https://img.icons8.com/color/48/google-logo.png" alt="google">Sign in with Google</button>
+      <button><img src="https://img.icons8.com/ios-filled/50/000000/mac-os.png" alt="apple">Sign in with Apple</button>
+    </div>
+  </div>
+
+  <a href="signup.html" class="create-account">Create new account</a>
+
+  <script>
+    // 자동 로그인 확인
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      alert("자동 로그인 되었습니다.");
+      location.href = "index.html"; // 메인 페이지로 이동
+    }
+
+    const form = document.querySelector(".login-form");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message);
+        } else {
+          alert("로그인 성공!");
+
+          // 세션 및 자동 로그인 저장
+          sessionStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          // 메인 페이지 이동
+          location.href = "index.html";
+        }
+      } catch (err) {
+        console.error("서버 오류:", err);
+        alert("서버 오류가 발생했습니다.");
+      }
+    });
+  </script>
+</body>
+</html>
