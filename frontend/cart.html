@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shopping Cart</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 28px;
+    }
+
+    .cart-item {
+      border: 1px solid #444;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #1a1a1a;
+      display: flex;
+      gap: 20px;
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .cart-info {
+      flex: 1;
+    }
+
+    .cart-info h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    .cart-info p {
+      margin: 5px 0;
+      color: #aaa;
+    }
+
+    .quantity-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .quantity-control button {
+      width: 25px;
+      height: 25px;
+      background: #444;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .remove-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      margin-left: 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #ddd;
+      text-align: right;
+    }
+
+    .checkout {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .checkout button {
+      padding: 12px 24px;
+      border: none;
+      background: white;
+      color: black;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 30px;
+    }
+
+    .checkout button:hover {
+      background: #ccc;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      font-size: 16px;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Cart</h1>
+  <div id="cart-list"></div>
+  <div class="checkout" id="checkout-section">
+    <button id="checkout-btn">결제하기</button>
+  </div>
+
+  <script>
+    const cartList = document.getElementById("cart-list");
+    const checkoutBtn = document.getElementById("checkout-btn");
+    const checkoutSection = document.getElementById("checkout-section");
+
+    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function renderCart() {
+      cartList.innerHTML = "";
+      if (cartItems.length === 0) {
+        cartList.innerHTML = '<p class="empty">장바구니가 비어 있습니다.</p>';
+        checkoutSection.style.display = "none";
+        return;
+      }
+
+      let total = 0;
+
+      cartItems.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        const el = document.createElement("div");
+        el.className = "cart-item";
+        el.innerHTML = `
+          <img src="${item.image || 'product-image.jpg'}" alt="상품 이미지">
+          <div class="cart-info">
+            <h2>${item.name}</h2>
+            <p>옵션: ${item.option || '-'}</p>
+            <p>단가: ${item.price.toLocaleString()}₩</p>
+            <div class="quantity-control">
+              <button onclick="changeQuantity(${index}, -1)">-</button>
+              <span>${item.quantity}</span>
+              <button onclick="changeQuantity(${index}, 1)">+</button>
+              <button class="remove-btn" onclick="removeItem(${index})">삭제</button>
+            </div>
+          </div>
+          <div class="price">${itemTotal.toLocaleString()}₩</div>
+        `;
+        cartList.appendChild(el);
+      });
+
+      const totalEl = document.createElement("div");
+      totalEl.style.textAlign = "right";
+      totalEl.style.marginTop = "20px";
+      totalEl.innerHTML = `<strong>Total: ${total.toLocaleString()}₩</strong>`;
+      cartList.appendChild(totalEl);
+    }
+
+    function changeQuantity(index, delta) {
+      cartItems[index].quantity += delta;
+      if (cartItems[index].quantity < 1) cartItems[index].quantity = 1;
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+      renderCart();
+    }
+
+    function removeItem(index) {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        cartItems.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cartItems));
+        renderCart();
+      }
+    }
+
+    function saveOrderToLocalStorage(orderItems) {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const newOrder = {
+        id: Date.now(),
+        date: new Date().toISOString().split("T")[0],
+        items: orderItems,
+        total: total
+      };
+      orders.unshift(newOrder);
+      localStorage.setItem("orders", JSON.stringify(orders));
+    }
+
+    checkoutBtn.addEventListener("click", () => {
+      if (cartItems.length === 0) return;
+      saveOrderToLocalStorage(cartItems);
+      localStorage.removeItem("cart");
+      alert("결제가 완료되었습니다. 주문 내역 페이지로 이동합니다.");
+      location.href = "orderhistory.html";
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>
