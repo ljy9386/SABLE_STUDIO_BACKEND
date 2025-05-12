@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>계정 비밀번호 재설정</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      font-family: "Noto Sans KR", sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background-color: #1a1a1a;
+      padding: 40px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: left;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .description {
+      font-size: 12.5px;
+      color: #ccc;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #000;
+      color: #fff;
+      margin-bottom: 25px;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-back {
+      background-color: #eee;
+      color: #000;
+    }
+
+    .btn-submit {
+      background-color: #333;
+      color: #fff;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>계정 비밀번호 재설정</h2>
+    <div class="description">
+      비밀번호를 재설정하려면<br>
+      등록하신 이메일 주소와 전화번호를 입력하세요.<br>
+    </div>
+
+    <form>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="Enter your email" required>
+
+      <div class="button-group">
+        <button type="button" class="btn btn-back" onclick="history.back()">back</button>
+        <button type="submit" class="btn btn-submit">submit</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    document.querySelector("form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+  
+      const res = await fetch("/api/send-temp-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+  
+      const data = await res.json();
+      alert(data.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SHOES | SABLE STUDIO</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard", sans-serif;
+      background-color: #fff;
+      color: #000;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* 상단 헤더 */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+    header > div {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    /* 메인 메뉴 */
+    .main-nav {
+      display: flex;
+      list-style: none;
+    }
+    .nav-item {
+      position: relative;
+      margin-right: 30px;
+    }
+    .nav-item a {
+      color: #000;
+      font-size: 14px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .nav-item a:hover {
+      color: #555;
+    }
+    /* 드롭다운 서브메뉴 */
+    .submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      padding: 15px 20px;
+      list-style: none;
+      min-width: 180px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    .submenu li {
+      font-size: 13px;
+      color: #333;
+      padding: 5px 0;
+    }
+    .submenu li strong {
+      display: block;
+      font-size: 13px;
+      color: #000;
+      margin-bottom: 10px;
+    }
+    .dropdown:hover .submenu {
+      display: block;
+    }
+    /* 오른쪽 아이콘 바 */
+    .icon-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      stroke: #000;
+      transition: stroke 0.2s;
+      background: none;
+      border: none;
+    }
+    .icon:hover {
+      stroke: #555;
+    }
+    .cart {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #000;
+    }
+    /* 검색창 오버레이 및 컨테이너 */
+    .search-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 999;
+    }
+    #search-box {
+      display: none;
+      position: fixed;
+      top: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1001;
+    }
+    .search-container {
+      position: relative;
+      width: 600px;
+      border: 1px solid #000;
+      padding: 20px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+    }
+    .search-container input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: none;
+      padding: 6px 0;
+    }
+    .search-container label {
+      position: absolute;
+      top: 6px;
+      left: 25px;
+      font-size: 12px;
+      color: #888;
+      pointer-events: none;
+    }
+    .search-icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #000;
+    }
+    #search-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #000;
+      margin-left: 15px;
+      cursor: pointer;
+    }
+    /* 컨텐츠 영역 */
+    .content-container {
+      display: flex;
+      margin-top: 100px;
+    }
+    /* 왼쪽 필터 영역 */
+    .filter-section {
+      width: 240px;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+    .filter-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .filter-group {
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      background: #fff;
+    }
+    .filter-group h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .filter-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .filter-group li {
+      margin-bottom: 5px;
+    }
+    .filter-section button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    /* 메인 상품 영역 */
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+    main h1 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .product-card {
+      position: relative; /* 하트 버튼 위치 지정을 위해 */
+      width: calc(25% - 20px);
+      box-sizing: border-box;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+      padding: 10px;
+      transition: box-shadow 0.2s ease;
+    }
+    .product-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    .price {
+      font-size: 14px;
+      color: #444;
+      margin: 0 0 10px;
+    }
+    /* 흰색 하트 버튼, 카드의 맨 왼쪽 위에 절대 배치 */
+    .heart-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: #ccc; 
+      z-index: 10;
+    }
+  </style>
+ </head>
+ <body>
+  <!-- 검색 오버레이 및 창 -->
+  <div class="search-overlay" id="search-overlay"></div>
+  <div id="search-box">
+   <div class="search-container">
+    <input id="search-input" type="text" required/>
+    <label for="search-input">Search</label>
+    <button id="search-submit" class="search-icon-button">
+     <svg class="search-icon" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+     </svg>
+    </button>
+    <button id="search-close">✕</button>
+   </div>
+  </div>
+  <!-- 상단 헤더 -->
+  <header>
+    <a href="index.html">SABLE STUDIO</a>
+    <nav>
+      <ul class="main-nav">
+
+        <li class="nav-item"><a href="new.html">NEW</a></li>
+
+        <li class="nav-item dropdown">
+          <a href="TOP.html" onclick="event.stopPropagation()">TOP</a>
+          <ul class="submenu">
+            <li><strong>TOP</strong></li>
+            <li class="nav-item"><a href="SHIRT.html">SHIRT</a></li>
+            <li class="nav-item"><a href="KNITWEAR.html">KNITWEAR</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="BOTTOM.html" onclick="event.stopPropagation()">BOTTOM</a>
+          <ul class="submenu">
+            <li><strong>BOTTOM</strong></li>
+            <li class="nav-item"><a href="PANTS.html">PANTS</a></li>
+            <li class="nav-item"><a href="SKIRTS.html">SKIRTS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="OUTER.html" onclick="event.stopPropagation()">OUTER</a>
+          <ul class="submenu">
+            <li><strong>OUTER</strong></li>
+            <li class="nav-item"><a href="COATS.html">COATS</a></li>
+            <li class="nav-item"><a href="JACKETS.html">JACKETS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a href="shoes.html">SHOES</a></li>
+        </li>
+      </ul>
+    </nav>
+   <div class="icon-bar">
+    <button class="icon" id="search-toggle">
+     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+     </svg>
+    </button>
+    <a href="#" id="user-icon">
+     <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M16 20c0-2-4-3-4-3s-4 1-4 3"></path>
+     </svg>
+    </a>
+    <a href="wishlist.html">
+     <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path d="M20.8 4.6c-1.4-1.4-3.7-1.4-5.1 0L12 8.3 8.3 4.6c-1.4-1.4-3.7-1.4-5.1 0s-1.4 3.7 0 5.1l3.7 3.7 5.1 5.1 5.1-5.1 3.7-3.7c1.4-1.4 1.4-3.7 0-5.1z"></path>
+     </svg>
+    </a>
+    <a href="cart.html">
+     <div class="cart">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+       <path d="M6 6h15l-1.5 9h-13z"></path>
+       <circle cx="9" cy="21" r="1"></circle>
+       <circle cx="18" cy="21" r="1"></circle>
+      </svg>
+      <span>0</span>
+     </div>
+    </a>
+   </div>
+  </header>
+  <!-- 컨텐츠 영역 -->
+  <div class="content-container">
+    <aside class="filter-section">
+      <h3 style="font-size: 13px; font-weight: normal; letter-spacing: 0.4px; margin-bottom: 15px;">CATEGORIES</h3>
+      <ul style="list-style: none; padding-left: 0; font-size: 13px; font-family: 'Pretendard', sans-serif;">
+        <li style="margin-bottom: 10px;"><a href="new.html" style="text-decoration: none; color: black;">NEW</a></li>
+        <li style="margin-bottom: 10px;"><a href="top.html" style="text-decoration: none; color: black;">TOP</a></li>
+        <li style="margin-bottom: 10px;"><a href="bottom.html" style="text-decoration: none; color: black;">BOTTOM</a>
+        </li>
+        <li style="margin-bottom: 10px;"><a href="outer.html" style="text-decoration: none; color: black;">OUTER</a>
+        </li>
+        <li style="margin-bottom: 10px;"><a href="shoes.html" style="text-decoration: none; color: black;">SHOES</a>
+        </li>
+      </ul>
+    </aside>
+    <main>
+      <h1 id="result-title"></h1>
+      <div class="product-grid" id="results"></div>
+    </main>
+  </div>
+  <script>
+    function getSelectedValues(selector) {
+      const checkboxes = document.querySelectorAll(selector);
+      let values = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) values.push(cb.value.toLowerCase());
+      });
+      return values;
+    }
+    function applyFilters() {
+      const selectedCategories = getSelectedValues('.filter-group[data-filter="category"] input[type="checkbox"]');
+      const selectedShoeSizes = getSelectedValues('.filter-group[data-filter="shoesize"] input[type="checkbox"]');
+      const selectedColors = getSelectedValues('.filter-group[data-filter="color"] input[type="checkbox"]');
+      const selectedSizes = getSelectedValues('.filter-group[data-filter="size"] input[type="checkbox"]');
+
+      let filtered = allProducts.filter(item => {
+        let match = true;
+        if (selectedCategories.length > 0 && !selectedCategories.includes(item.category.toLowerCase())) {
+          match = false;
+        }
+        if (selectedShoeSizes.length > 0) {
+          if (item.hasOwnProperty("SHOE SIZE")) {
+            if (!selectedShoeSizes.includes(item["SHOE SIZE"].toLowerCase())) {
+              match = false;
+            }
+          } else {
+            match = false;
+          }
+        }
+        if (selectedColors.length > 0 && !selectedColors.includes(item.color.toLowerCase())) {
+          match = false;
+        }
+        if (selectedSizes.length > 0) {
+          if (item.hasOwnProperty("size")) {
+            if (!selectedSizes.includes(item.size.toLowerCase())) {
+              match = false;
+            }
+          } else {
+            match = false;
+          }
+        }
+        return match;
+      });
+      renderProducts(filtered);
+    }
+    function renderProducts(products) {
+      const resultsContainer = document.getElementById("results");
+      resultsContainer.innerHTML = "";
+      if (products.length === 0) {
+        resultsContainer.innerHTML = "<p>검색 결과가 없습니다.</p>";
+      } else {
+        products.forEach(product => {
+          const div = document.createElement("div");
+          div.className = "product-card";
+          div.onclick = () => {
+            window.location.href = "product-detail.html?name=" + encodeURIComponent(product.name);
+          };
+          div.innerHTML = `
+        <button class="heart-btn"
+                data-name="${product.name}"
+                data-image="${product.image}"
+                data-price="${product.price}"
+                data-size="${product["SHOE SIZE"] ? product["SHOE SIZE"] : product.size}"
+                data-color="${product.color}"
+                onclick="event.stopPropagation(); addToWishlist(this)">♥</button>
+        <img src="${product.image}" alt="${product.name}">
+        <div class="product-name">${product.name}</div>
+        <div class="price">${product.price}</div>
+      `;
+          resultsContainer.appendChild(div);
+        });
+      }
+    }
+    window.addEventListener("DOMContentLoaded", () => {
+  const combinedProducts = allProducts.filter(product =>
+    product.category.includes("SHOES")
+  );
+  renderProducts(combinedProducts);
+});
+    document.getElementById("user-icon").onclick = (e) => {
+      e.preventDefault();
+      window.location.href = "mypage.html";
+    };
+  </script>
+  <script>
+    function addToWishlist(button) {
+      const name = button.dataset.name;
+      const image = button.dataset.image;
+      // 가격 문자열 ("₩689,000")에서 특수문자를 제거 후 숫자로 변환
+      const price = Number(button.dataset.price.replace(/[₩,]/g, ''));
+      const size = button.dataset.size;
+      const color = button.dataset.color;
+
+      fetch("/api/wishlist/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image, price, size, color })
+      })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success) alert("위시리스트에 추가되었습니다");
+          else alert("⚠️ 추가 실패: " + result.message);
+        })
+        .catch(err => alert("오류: " + err));
+    }
+  </script>
+  <script src="products.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUNCTURE M A-STABBING WOMEN B | SABLE STUDIO</title>
+  <style>
+    /* ----- 기본 스타일 ----- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard", sans-serif;
+      background: #fff;
+      color: #000;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ----- 상단 헤더 (search.html 동일) ----- */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+    .site-name a {
+      font-size: 20px;
+      font-weight: bold;
+      color: #000;
+    }
+    .main-nav {
+      display: flex;
+      list-style: none;
+      margin: 0; 
+      padding: 0;
+    }
+    .nav-item {
+      position: relative;
+      margin-right: 30px;
+    }
+    .nav-item a {
+      font-size: 14px;
+      padding: 5px 10px;
+      color: #000;
+    }
+    .nav-item a:hover {
+      color: #555;
+    }
+    /* 드롭다운 서브메뉴 */
+    .submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      padding: 10px 20px;
+      list-style: none;
+      min-width: 180px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    .submenu li {
+      font-size: 13px;
+      padding: 5px 0;
+      color: #333;
+    }
+    .submenu li strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #000;
+      font-size: 13px;
+    }
+    .dropdown:hover .submenu {
+      display: block;
+    }
+    /* 오른쪽 아이콘 바 */
+    .icon-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      stroke: #000;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: stroke 0.2s;
+    }
+    .icon:hover {
+      stroke: #555;
+    }
+    .cart {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #000;
+    }
+
+    /* ----- 검색창 (오버레이) ----- */
+    .search-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 999;
+    }
+    #search-box {
+      display: none;
+      position: fixed;
+      top: 90px;  /* 헤더 아래 */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1001;
+    }
+    .search-container {
+      position: relative;
+      width: 600px;
+      border: 1px solid #000;
+      padding: 20px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+    }
+    .search-container input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: none;
+      padding: 6px 0;
+    }
+    .search-container label {
+      position: absolute;
+      top: 6px; left: 25px;
+      font-size: 12px;
+      color: #888;
+      pointer-events: none;
+    }
+    .search-icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #000;
+    }
+    #search-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #000;
+      margin-left: 15px;
+      cursor: pointer;
+    }
+
+    /* ----- 전체 레이아웃 (필터 + 상세페이지) ----- */
+    .content-container {
+      display: flex;
+      margin-top: 90px; /* 헤더 높이 + 약간 여백 */
+    }
+    /* 왼쪽 필터 영역 (search.html 동일) */
+    .filter-section {
+      width: 240px;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+    .filter-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    /* 오른쪽 상세페이지 영역 */
+    .detail-container {
+      flex: 1;
+      padding: 40px;
+    }
+
+    /* ----- 상품 상세 레이아웃 ----- */
+    .product-detail {
+      display: flex;
+      gap: 40px;
+    }
+    .product-images {
+      flex: 1;
+    }
+    .product-images img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    /* 썸네일 예시: 갤러리 만들 때 */
+    .thumbnail-list {
+      display: flex;
+      gap: 10px;
+    }
+    .thumbnail-list img {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+    /* 오른쪽 상품 정보 */
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .product-info h1 {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 0 10px;
+    }
+    .product-info .price {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    .product-info .desc {
+      margin-bottom: 20px;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+    /* 옵션/사이즈/수량 선택 등 */
+    .options {
+      margin-bottom: 20px;
+    }
+    .options label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .options select {
+      width: 120px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    /* 장바구니 버튼 */
+    .btn-cart {
+      background: #000;
+      color: #fff;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      width: 200px;
+    }
+    .btn-cart:hover {
+      background: #333;
+    }
+    .content-container {
+      display: flex;
+      margin-top: 90px; /* 헤더 높이(70px) + 약간의 여백 */
+    }
+    /* 왼쪽 필터 영역 */
+    .filter-section {
+      width: 240px;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+    .filter-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .filter-group {
+      margin-bottom: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .filter-group h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .filter-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .filter-group li {
+      margin-bottom: 5px;
+    }
+    .filter-section button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 검색창 오버레이 -->
+  <div id="search-overlay" class="search-overlay"></div>
+  <!-- 검색창 박스 -->
+  <div id="search-box">
+    <div class="search-container">
+      <input type="text" id="search-input" required />
+      <label for="search-input">Search</label>
+      <button id="search-submit" class="search-icon-button">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24" fill="none" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <button id="search-close">✕</button>
+    </div>
+  </div>
+
+  <!-- 상단 헤더 (search.html 동일) -->
+  <header>
+    <!-- 왼쪽: 사이트명 -->
+    <div class="site-name">
+      <a href="index.html">SABLE STUDIO</a>
+    </div>
+
+    <!-- 중앙: 메인 메뉴 -->
+    <nav>
+      <ul class="main-nav">
+        <li class="nav-item"><a href="new.html">NEW</a></li>
+        <li class="nav-item dropdown">
+          <a href="#">TOP</a>
+          <ul class="submenu">
+            <li><strong>TOP</strong></li>
+            <li class="nav-item"><a href="SHIRT.html">SHIRT</a></li>
+            <li class="nav-item"><a href="KNITWEAR.html">KNITWEAR</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="#">BOTTOM</a>
+          <ul class="submenu">
+            <li><strong>BOTTOM</strong></li>
+            <li class="nav-item"><a href="PANTS.html">PANTS</a></li>
+            <li class="nav-item"><a href="SKIRTS.html">SKIRTS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="#">OUTER WEAR</a>
+          <ul class="submenu">
+            <li><strong>OUTER WEAR</strong></li>
+            <li class="nav-item"><a href="COATS.html">COATS</a></li>
+            <li class="nav-item"><a href="JACKETS.html">JACKETS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a href="shoes.html">SHOES</a></li>
+      </ul>
+    </nav>
+
+    <!-- 오른쪽 아이콘 -->
+    <div class="icon-bar">
+      <button id="search-toggle" class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+             viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <a href="#" id="user-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke-width="1.5" stroke-linecap="round"
+             stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M16 20c0-2-4-3-4-3s-4 1-4 3"/>
+        </svg>
+      </a>
+      <a href="wishlist.html">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke-width="1.5" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M20.8 4.6c-1.4-1.4-3.7-1.4-5.1 0L12 8.3 8.3 4.6c-1.4-1.4-3.7-1.4-5.1
+                   0s-1.4 3.7 0 5.1l3.7 3.7 5.1 5.1 5.1-5.1 3.7-3.7c1.4-1.4
+                   1.4-3.7 0-5.1z"/>
+        </svg>
+      </a>
+      <a href="cart.html">
+        <div class="cart">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 24 24" fill="none" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6h15l-1.5 9h-13z"/>
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="18" cy="21" r="1"/>
+          </svg>
+          <span>0</span>
+        </div>
+      </a>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 (왼쪽 필터 + 상세 페이지) -->
+  <div class="content-container">
+    <!-- 왼쪽 필터 섹션 -->
+    <aside class="filter-section">
+      <h2>FILTER</h2>
+      <div id="shirts-filter-group" class="filter-group hidden">
+        <h3 onclick="toggleDropdown('shirts-category-dropdown')">CATEGORY</h3>
+        <ul id="shirts-category-dropdown" class="dropdown-content">
+          <li><label><input type="checkbox" value="shirt" onchange="applyFilters()"> Shirt</label></li>
+          <li><label><input type="checkbox" value="blouse" onchange="applyFilters()"> Blouse</label></li>
+          <li><label><input type="checkbox" value="jacket" onchange="applyFilters()"> Jacket</label></li>
+        </ul>
+                
+        <h3 onclick="toggleDropdown('shirts-size-dropdown')">SIZE</h3>
+        <ul id="shirts-size-dropdown" class="dropdown-content">
+          <li><label><input type="checkbox" value="S" onchange="applyFilters()"> S</label></li>
+          <li><label><input type="checkbox" value="M" onchange="applyFilters()"> M</label></li>
+          <li><label><input type="checkbox" value="L" onchange="applyFilters()"> L</label></li>
+        </ul>
+                
+        <h3 onclick="toggleDropdown('shirts-color-dropdown')">COLOR</h3>
+        <ul id="shirts-color-dropdown" class="dropdown-content">
+          <li><label><input type="checkbox" value="Black" onchange="applyFilters()"> Black</label></li>
+          <li><label><input type="checkbox" value="White" onchange="applyFilters()"> White</label></li>
+          <li><label><input type="checkbox" value="Grey" onchange="applyFilters()"> Grey</label></li>
+        </ul>
+        </div>
+      <button>Apply Filters</button>
+    </aside>
+
+    <!-- 오른쪽 상품 상세 페이지 -->
+    <div class="detail-container">
+      <div class="product-detail">
+        <!-- 왼쪽: 이미지 영역 -->
+        <div class="product-images">
+          <img src="img/PUNCTURE M A-STABBING WOMEN B.webp" alt="PUNCTURE M A-STABBING WOMEN B">
+          <!-- 썸네일 예시 -->
+          <div class="thumbnail-list">
+            <img src="img/PUNCTURE M A-STABBING WOMEN B.webp" alt="thumb1">
+            <img src="img/PUNCTURE M A-STABBING WOMEN B.webp" alt="thumb2">
+          </div>
+        </div>
+
+        <!-- 오른쪽: 상품 정보 -->
+        <div class="product-info">
+          <h1>PUNCTURE M A-STABBING WOMEN B</h1>
+          <div class="price">KRW ₩2,777,000</div>
+          <div class="desc">
+            부드러운 소재감과 여유로운 실루엣의<br>
+            롱 블라우스입니다. 앞중심 디테일과<br>
+            뒤쪽의 자연스러운 드레이프로<br>
+            독특한 실루엣을 연출합니다.
+          </div>
+          <div class="options">
+            <label for="size-select">SIZE</label>
+            <select id="size-select">
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+            </select>
+
+            <label for="color-select">COLOR</label>
+            <select id="color-select">
+              <option>Black</option>
+              <option>White</option>
+            </select>
+
+            <label for="qty-select">QTY</label>
+            <select id="qty-select">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+
+          <button class="btn-cart">ADD TO CART</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 상단 검색창 열기/닫기 로직 */
+    const searchToggle = document.getElementById("search-toggle");
+    const searchBox = document.getElementById("search-box");
+    const searchClose = document.getElementById("search-close");
+    const searchOverlay = document.getElementById("search-overlay");
+    const searchInput = document.getElementById("search-input");
+    const searchSubmit = document.getElementById("search-submit");
+
+    searchToggle.onclick = () => {
+      searchBox.style.display = "block";
+      searchOverlay.style.display = "block";
+      searchInput.focus();
+    };
+    searchClose.onclick = () => {
+      searchBox.style.display = "none";
+      searchOverlay.style.display = "none";
+    };
+    searchOverlay.onclick = () => {
+      searchBox.style.display = "none";
+      searchOverlay.style.display = "none";
+    };
+    function goSearch() {
+      const keyword = searchInput.value.trim();
+      if (keyword) {
+        location.href = `search.html?q=${encodeURIComponent(keyword)}`;
+      }
+    }
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        goSearch();
+      }
+    });
+    searchSubmit.onclick = goSearch;
+
+    /* 유저 아이콘 (예시) */
+    document.getElementById("user-icon").onclick = (e) => {
+      e.preventDefault();
+      window.location.href = "mypage.html";
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Order History</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 80px auto;
+      padding: 20px;
+    }
+
+    .breadcrumb {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .no-orders {
+      text-align: center;
+      color: #999;
+      margin: 60px 0;
+    }
+
+    .order {
+      background-color: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .order h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
+    .order-date {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 15px;
+    }
+
+    .product {
+      padding: 10px 0;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .product:last-child {
+      border-bottom: none;
+    }
+
+    .total {
+      text-align: right;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #eee;
+    }
+
+    .back-btn {
+      display: block;
+      width: 180px;
+      margin: 40px auto 0;
+      background-color: #444;
+      color: white;
+      padding: 12px 0;
+      border-radius: 25px;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html" style="color:#aaa;">Home</a> &gt;
+      <a href="mypage.html" style="color:#aaa;">My Page</a> &gt;
+      <span>Order History</span>
+    </div>
+
+    <h1>Order History</h1>
+
+    <div id="order-list">
+      <!-- 주문 내역이 여기에 삽입됨 -->
+    </div>
+
+    <a class="back-btn" href="mypage.html">Go back</a>
+  </div>
+  <script>
+function requestRefund(button, order_id) {
+  fetch("/pay/refund", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: "include",
+    body: JSON.stringify({ order_id })
+  })
+    .then(res => res.json())
+    .then(result => {
+      alert(result.message);
+      if (result.success) {
+        button.textContent = "환불완료";
+        button.disabled = true;
+        button.style.backgroundColor = "#666";
+        button.style.cursor = "default";
+      }
+    })
+    .catch(err => console.error("환불 오류:", err));
+}
+  </script>
+<script>
+fetch("/pay/order-history", {
+  credentials: "include"
+})
+  .then(res => res.json())
+  .then(orders => {
+    const container = document.getElementById("order-list");
+
+    if (!orders.length) {
+      container.innerHTML = `<div class="no-orders">You haven't placed any orders yet.</div>`;
+    } else {
+      orders.forEach(order => {
+        const orderHTML = `
+          <div class="order">
+            <h2>Order #${order.order_id}</h2>
+            <div class="order-date">${new Date(order.date).toLocaleString()}</div>
+            <div class="product">
+              <span>${order.item_name}</span>
+              <span>${order.amount.toLocaleString()}₩</span>
+            </div>
+            <div class="total">Total: ${order.amount.toLocaleString()}₩</div>
+            <button onclick="requestRefund(this, '${order.order_id}')">환불하기</button>
+          </div>
+        `;
+        container.innerHTML += orderHTML;
+      });
+    }
+  });
+</script>
+</body>
+
+</html>

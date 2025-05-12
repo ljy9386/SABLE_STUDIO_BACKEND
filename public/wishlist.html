@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My wishlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* (앞서 제공한 스타일 코드 그대로 사용) */
+    :root {
+      --primary-bg: #111;
+      --secondary-bg: #1f1f1f;
+      --card-bg: #222;
+      --text-color: #fff;
+      --border-color: #333;
+      --accent-color: #fff;
+      --accent-text-color: #000;
+      --delete-color: #888;
+      --delete-hover: #aaa;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--primary-bg);
+      color: var(--text-color);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2rem;
+      letter-spacing: 0.5px;
+    }
+    .wishlist-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .wishlist-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .item-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    .item-left img {
+      width: 100px;
+      height: auto;
+      border-radius: 4px;
+      margin-right: 20px;
+    }
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .item-info h2 {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    .item-info p {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin: 0;
+    }
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .size-box {
+      padding: 6px 10px;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      background: transparent;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .add-cart-btn {
+      padding: 6px 14px;
+      background: var(--accent-color);
+      color: var(--accent-text-color);
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .add-cart-btn:hover {
+      filter: brightness(0.9);
+    }
+    .delete-btn {
+      padding: 6px 10px;
+      background: var(--delete-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .delete-btn:hover {
+      background: var(--delete-hover);
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+      .wishlist-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .item-left {
+        margin-bottom: 10px;
+      }
+      .item-right {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>My wishlist</h1>
+  <div class="wishlist-container" id="wishlistContainer">
+    <!-- 여기서 JS로 위시리스트 아이템을 렌더링 -->
+  </div>
+  
+  <script>
+    // 페이지 로드 후 GET 요청으로 위시리스트 데이터 가져오기
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("/api/wishlist")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("wishlistContainer");
+          if (data.length === 0) {
+            container.innerHTML = "<p>위시리스트가 비어 있습니다.</p>";
+          } else {
+            data.forEach(item => {
+              const div = document.createElement("div");
+              div.className = "wishlist-item";
+              div.setAttribute("data-id", item._id);
+              div.innerHTML = `
+                <div class="item-left">
+                  <img src="${encodeURI('/' + item.image)}" alt="${item.name}" onerror="this.style.display='none';">
+                  <div class="item-info">
+                    <h2>${item.name}</h2>
+                    <p>₩${item.price}</p>
+                  </div>
+                </div>
+                <div class="item-right">
+                  <div class="size-box">${item.size}</div>
+                  <button class="add-cart-btn">장바구니에 담기</button>
+                  <button class="delete-btn" onclick="deletewishlist('${item._id}')">삭제</button>
+                </div>
+              `;
+              container.appendChild(div);
+            });
+          }
+        })
+        .catch(err => console.error("위시리스트 가져오기 오류:", err));
+    });
+
+    // 위시리스트 아이템 삭제 함수
+    function deletewishlist(id) {
+      fetch("/api/wishlist/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          // 삭제가 성공하면 해당 아이템 DOM 제거
+          const item = document.querySelector(`[data-id="${id}"]`);
+          if (item) item.remove();
+        } else {
+          alert("삭제 실패: " + result.message);
+        }
+      })
+      .catch(err => {
+        console.error("삭제 요청 오류:", err);
+        alert("삭제 요청 중 오류 발생");
+      });
+    }
+  </script>
+</body>
+</html>

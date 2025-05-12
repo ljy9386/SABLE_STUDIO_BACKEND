@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>상품 상세</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard", sans-serif;
+      background-color: #fff;
+      color: #000;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* 상단 헤더 */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+
+    header>div {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* 메인 메뉴 */
+    .main-nav {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav-item {
+      position: relative;
+      margin-right: 30px;
+    }
+
+    .nav-item a {
+      color: #000;
+      font-size: 14px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .nav-item a:hover {
+      color: #555;
+    }
+
+    /* 드롭다운 서브메뉴 */
+    .submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      padding: 15px 20px;
+      list-style: none;
+      min-width: 180px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+    }
+
+    .submenu li {
+      font-size: 13px;
+      color: #333;
+      padding: 5px 0;
+    }
+
+    .submenu li strong {
+      display: block;
+      font-size: 13px;
+      color: #000;
+      margin-bottom: 10px;
+    }
+
+    .dropdown:hover .submenu {
+      display: block;
+    }
+
+    /* 오른쪽 아이콘 바 */
+    .icon-bar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      /* 원래 20px 정도였다면 24px로 살짝 넓게 */
+      margin-right: 40px;
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      stroke: #000;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: stroke 0.2s;
+    }
+
+    .icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+
+    .icon:hover {
+      stroke: #555;
+    }
+
+    .cart {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #000;
+    }
+
+    /* 검색창 오버레이 */
+    .search-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+
+    /* 검색창 컨테이너 */
+    #search-box {
+      display: none;
+      position: fixed;
+      top: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1001;
+    }
+
+    .search-container {
+      position: relative;
+      width: 600px;
+      border: 1px solid #000;
+      padding: 20px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-container input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: none;
+      padding: 6px 0;
+    }
+
+    .search-container label {
+      position: absolute;
+      top: 6px;
+      left: 25px;
+      font-size: 12px;
+      color: #888;
+      pointer-events: none;
+    }
+
+    .search-icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #000;
+    }
+
+    #search-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #000;
+      margin-left: 15px;
+      cursor: pointer;
+    }
+
+    /* 컨텐츠 영역 */
+    .content-container {
+      display: flex;
+      margin-top: 100px;
+    }
+
+    /* 왼쪽 필터 영역 */
+    .filter-section {
+      width: 240px;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .filter-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .filter-group {
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .filter-group h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .filter-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .filter-group li {
+      margin-bottom: 5px;
+    }
+
+    .filter-section button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .detail-content {
+      display: flex;
+      flex: 1;
+      gap: 200px;
+      padding: 20px;
+    }
+
+    .detail-image {
+      width: 600px;
+    }
+
+    .detail-image img {
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .detail-info {
+      width: 360px;
+    }
+
+    .detail-info h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .detail-info p {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .detail-info select,
+    .detail-info button {
+      width: 100%;
+      font-size: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .product-wrapper {
+      display: flex;
+      gap: 60px;
+      padding: 80px;
+    }
+
+    .product-image img {
+      width: 600px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .product-info h1 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .product-info p {
+      margin: 5px 0;
+    }
+
+    .size-add-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    #product-sizes {
+      flex: 1;
+      height: 40px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    #buy-btn {
+      padding: 10px 20px;
+      height: 40px;
+      background: #000;
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .accordion {
+      margin-top: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .panel {
+      display: none;
+      padding: 10px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 검색 오버레이 -->
+  <div class="search-overlay" id="search-overlay"></div>
+  <div id="search-box">
+    <div class="search-container">
+      <input id="search-input" type="text" required />
+      <label for="search-input">Search</label>
+      <button id="search-submit" class="search-icon-button">
+        <svg class="search-icon" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+      <button id="search-close">✕</button>
+    </div>
+  </div>
+  <div id="detail"></div>
+  <!-- 상단 헤더 -->
+  <header>
+    <a href="index.html">SABLE STUDIO</a>
+    <nav>
+      <ul class="main-nav">
+        <li class="nav-item"><a href="new.html">NEW</a></li>
+        <li class="nav-item dropdown">
+          <a href="TOP.html" onclick="event.stopPropagation()">TOP</a>
+          <ul class="submenu">
+            <li><strong>TOP</strong></li>
+            <li class="nav-item"><a href="SHIRT.html">SHIRT</a></li>
+            <li class="nav-item"><a href="KNITWEAR.html">KNITWEAR</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="BOTTOM.html" onclick="event.stopPropagation()">BOTTOM</a>
+          <ul class="submenu">
+            <li><strong>BOTTOM</strong></li>
+            <li class="nav-item"><a href="PANTS.html">PANTS</a></li>
+            <li class="nav-item"><a href="SKIRTS.html">SKIRTS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="OUTER.html" onclick="event.stopPropagation()">OUTER</a>
+          <ul class="submenu">
+            <li><strong>OUTER</strong></li>
+            <li class="nav-item"><a href="COATS.html">COATS</a></li>
+            <li class="nav-item"><a href="JACKETS.html">JACKETS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a href="shoes.html">SHOES</a></li>
+      </ul>
+    </nav>
+    <!-- 아이콘 바 -->
+    <div class="icon-bar">
+      <button class="icon" id="search-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="round"
+          stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+      <a href="#" id="user-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round"
+          stroke-linejoin="round" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M16 20c0-2-4-3-4-3s-4 1-4 3"></path>
+        </svg>
+      </a>
+      <a href="wishlist.html">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round"
+          stroke-linejoin="round" stroke-width="1.5">
+          <path
+            d="M20.8 4.6c-1.4-1.4-3.7-1.4-5.1 0L12 8.3 8.3 4.6c-1.4-1.4-3.7-1.4-5.1 0s-1.4 3.7 0 5.1l3.7 3.7 5.1 5.1 5.1-5.1 3.7-3.7c1.4-1.4 1.4-3.7 0-5.1z">
+          </path>
+        </svg>
+      </a>
+      <a href="cart.html">
+        <div class="cart">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" stroke-width="1.5">
+            <path d="M6 6h15l-1.5 9h-13z"></path>
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="18" cy="21" r="1"></circle>
+          </svg>
+          <span>0</span>
+        </div>
+      </a>
+    </div>
+  </header>
+</body>
+<!-- 컨텐츠 영역 -->
+<div class="content-container">
+  <!-- 왼쪽 필터 섹션 -->
+  <aside class="filter-section">
+    <h3 style="
+            font-size: 13px;
+            font-weight: normal;
+            letter-spacing: 0.4px;
+            margin-bottom: 15px;
+          ">
+      CATEGORIES
+    </h3>
+    <ul style="
+            list-style: none;
+            padding-left: 0;
+            font-size: 13px;
+            font-family: 'Pretendard', sans-serif;
+          ">
+      <li style="margin-bottom: 10px">
+        <a href="new.html" style="text-decoration: none; color: black">NEW</a>
+      </li>
+      <li style="margin-bottom: 10px">
+        <a href="top.html" style="text-decoration: none; color: black">TOP</a>
+      </li>
+      <li style="margin-bottom: 10px">
+        <a href="bottom.html" style="text-decoration: none; color: black">BOTTOM</a>
+      </li>
+      <li style="margin-bottom: 10px">
+        <a href="outer.html" style="text-decoration: none; color: black">OUTER</a>
+      </li>
+      <li style="margin-bottom: 10px">
+        <a href="shoes.html" style="text-decoration: none; color: black">SHOES</a>
+      </li>
+    </ul>
+  </aside>
+  <!-- 상품 디테일 섹션 -->
+
+  <div class="product-wrapper">
+    <div class="product-image">
+      <img id="product-img" src="" alt="">
+    </div>
+
+    <div class="product-info">
+      <h1 id="product-name"></h1>
+      <p id="product-color"></p>
+      <p id="product-price"></p>
+
+      <div class="size-add-wrapper">
+        <select id="product-sizes">
+          <option>SELECT YOUR SIZE</option>
+        </select>
+        <button id="buy-btn">ADD TO BAG</button>
+      </div>
+
+      <div class="accordion">DESCRIPTION</div>
+      <div class="panel" id="product-description"></div>
+
+      <div class="accordion">SIZE & FIT</div>
+      <div class="panel" id="product-sizeTable"></div>
+
+      <div class="accordion">NOTICE</div>
+      <div class="panel" id="notice-panel">
+        <p><strong>배송 및 교환 / 환불</strong><br>
+          오후 2시 이전까지 결제 완료된 주문 건들에 한하여 CJ 대한통운을 통해 배송되며, 최대 7일 이내 제공됩니다.<br>
+          단순 변심으로 인한 교환 반품은 제품 수령일부터 7일 이내 가능합니다. 배송 중 상품이 취소되지 않도록 주문해 주십시오.</p>
+
+        <p>문의 이메일: @gamil.com</p>
+
+        <p><strong>교환 / 반품 불가 안내</strong><br>
+          - 상품을 수령한 날로부터 7일을 경과한 경우<br>
+          - 고객님에 의해 상품이 훼손되거나, 상품 가치가 상실된 경우<br>
+          - 사용 또는 소비로 상품 가치가 현저히 감소한 경우<br>
+          - 사은품이 동봉되지 않은 반품일 경우<br>
+          - 반품 신청 후 7일 이내 발송주소지로 도착하지 않은 경우</p>
+
+        <p><strong>취소 / 환불 안내</strong><br>
+          - 신용카드 결제 취소는 반품 완료 및 상품 검품 이후 3~6일 소요<br>
+          - 무통장입금 환불은 환불 계좌로 2~3일 내 입금 처리</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ 스크립트 연결만 -->
+  <script src="products.js"></script>
+  <script src="detail.js"></script>
+  </body>
+
+</html>

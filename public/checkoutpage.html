@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout Page</title>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      background-color: #fff;
+      color: #000;
+    }
+
+    h2 {
+      font-size: 12px;
+      font-weight: normal;
+      margin: 40px 0 10px;
+      border-top: 1px solid #000;
+      padding-top: 40px;
+    }
+
+    .product {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    .product img {
+      width: 100px;
+      margin-right: 20px;
+    }
+
+    .product-info {
+      flex: 1;
+      font-size: 12px;
+    }
+
+    .price {
+      font-size: 12px;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-left: 20px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .field-group {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 5px;
+      border: none;
+      border-bottom: 1px solid #000;
+      font-size: 12px;
+    }
+
+    .phone-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .phone-input input {
+      width: 100%;
+    }
+
+    .summary-table {
+      width: 100%;
+      font-size: 12px;
+      border-collapse: collapse;
+    }
+
+    .summary-table td {
+      padding: 5px 0;
+    }
+
+    .summary-table .label {
+      color: #555;
+    }
+
+    .summary-table .total {
+      font-weight: bold;
+    }
+
+    .payment-method {
+      margin: 30px 0;
+    }
+
+    .place-order {
+      background: #000;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+    }
+
+    .wrapper {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .checkout-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 0;
+    }
+
+    .checkout-item img {
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    .checkout-info {
+      flex: 1;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .checkout-info h2 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .checkout-info p {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .checkout-container {
+      border-top: 1px solid #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <h2>CHECK OUT</h2>
+    <div class="checkout-container"></div>
+
+    <h2>SHIPPING ADDRESS</h2>
+    <div class="section">
+      <div class="field-group">
+        <label>Name</label>
+        <input type="text" id="user-name">
+      </div>
+      <div class="field-group">
+        <label>Postal Code</label>
+        <input type="text" id="postal-code">
+        <button id="search-address">Search</button>
+      </div>
+      <div class="field-group">
+        <label>Address</label>
+        <input type="text" id="address">
+      </div>
+      <div class="field-group">
+        <label>Address Detail</label>
+        <input type="text" id="Address-Detail">
+      </div>
+      <div class="field-group phone-input">
+        <label>Phone</label><br>
+        <input type="tel" id="phone1">
+        <input type="tel" id="phone2">
+        <input type="tel" id="phone3">
+      </div>
+    </div>
+
+    <h2>ORDER SUMMARY</h2>
+    <table class="summary-table">
+      <tr>
+        <td class="label">Subtotal</td>
+        <td style="text-align:right" id="subtotal-cell">KRW 0</td>
+      </tr>
+      <tr>
+        <td class="label">Discounts</td>
+        <td style="text-align:right">KRW 0</td>
+      </tr>
+      <tr>
+        <td class="label">Shipping total</td>
+        <td style="text-align:right">KRW 0</td>
+      </tr>
+      <tr>
+        <td class="total">Order total</td>
+        <td style="text-align:right" class="total" id="total-cell">KRW 0</td>
+      </tr>
+    </table>
+
+    <div class="payment-method">
+      <label>PAYMENT METHOD</label><br>
+      <input type="radio" name="payment" checked> 카카오페이<br>
+      <input type="radio" name="payment" disabled> 휴대폰<br>
+      <input type="radio" name="payment" disabled> 신용카드<br>
+      <input type="radio" name="payment" disabled> 에스크로(계좌이체)
+    </div>
+
+    <button class="place-order" onclick="requestPayment()">Place Order</button>
+  </div>
+
+  <script>
+    const items = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+    const container = document.querySelector(".checkout-container");
+
+    items.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "checkout-item";
+      el.innerHTML = `
+        <img src="${item.image || 'product-image.jpg'}" alt="상품 이미지">
+        <div class="checkout-info">
+          <h2>${item.name}</h2>
+          <p>옵션: ${item.size} / ${item.color}</p>
+          <p>수량: ${item.quantity}개</p>
+        </div>
+        <div class="price">${(item.price * item.quantity).toLocaleString()}₩</div>
+      `;
+      container.appendChild(el);
+    });
+
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (user.name) document.querySelector("#user-name").value = user.name;
+      if (user.postalCode) document.querySelector("#postal-code").value = user.postalCode;
+      if (user.address) document.querySelector("#address").value = user.address;
+
+      if (user.phone) {
+        const parts = user.phone.split("-");
+        if (parts.length === 3) {
+          document.querySelector("#phone1").value = parts[0];
+          document.querySelector("#phone2").value = parts[1];
+          document.querySelector("#phone3").value = parts[2];
+        }
+      }
+    });
+
+    window.onload = function () {
+      const searchButton = document.getElementById("search-address");
+
+      if (searchButton) {
+        searchButton.addEventListener("click", function () {
+          new daum.Postcode({
+            oncomplete: function (data) {
+              const zonecodeInput = document.getElementById("postal-code");
+              const addressInput = document.getElementById("address");
+
+              if (zonecodeInput && addressInput) {
+                zonecodeInput.value = data.zonecode;
+                addressInput.value = data.roadAddress || data.jibunAddress;
+              }
+            }
+          }).open();
+        });
+      }
+    };
+  </script>
+  <script>
+    async function requestPayment() {
+      // ✅ [1] 우편번호 & 전화번호 유효성 검사
+      const postalCode = document.getElementById("postal-code").value.trim();
+      const phone1 = document.getElementById("phone1").value.trim();
+      const phone2 = document.getElementById("phone2").value.trim();
+      const phone3 = document.getElementById("phone3").value.trim();
+
+      if (!postalCode) {
+        alert("수취자 우편번호1 항목은 필수 입력값입니다.");
+        return;
+      }
+
+      if (!phone1 || !phone2 || !phone3) {
+        alert("전화번호를 모두 입력해주세요.");
+        return;
+      }
+
+      const phonePattern = /^\d+$/;
+      if (
+        !phonePattern.test(phone1) ||
+        !phonePattern.test(phone2) ||
+        !phonePattern.test(phone3)
+      ) {
+        alert("전화번호는 숫자만 입력해야 합니다.");
+        return;
+      }
+      const items = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+
+      const totalAmount = items.reduce((acc, item) => {
+        const price = typeof item.price === "string"
+          ? parseInt(item.price.replace(/[^0-9]/g, ""))
+          : item.price;
+
+        return acc + (price * item.quantity);
+      }, 0);
+
+      try {
+        const response = await fetch("http://localhost:5000/pay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            item_name: items[0]?.name || "상품",
+            quantity: items.length,
+            total_amount: totalAmount
+          })
+        });
+
+        const result = await response.json();
+        console.log("📦 서버 응답:", result);
+        if (result.redirect_url) {
+          const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+          const newOrder = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            items: items,
+            total: totalAmount
+          };
+
+          orders.push(newOrder);
+          localStorage.setItem("orders", JSON.stringify(orders));
+          window.location.href = result.redirect_url;
+        } else {
+          alert("결제 URL을 가져오지 못했습니다.");
+        }
+      } catch (err) {
+        console.error("결제 요청 실패", err);
+        alert("결제 요청 중 오류 발생");
+      }
+    }
+    // 🧮 가격 동적으로 반영
+    const subtotalCell = document.getElementById("subtotal-cell");
+    const totalCell = document.getElementById("total-cell");
+
+    const totalAmount = items.reduce((acc, item) => {
+      const price = typeof item.price === "string"
+        ? parseInt(item.price.replace(/[^0-9]/g, ""))
+        : item.price;
+
+      return acc + (price * item.quantity);
+    }, 0);
+
+    if (subtotalCell) subtotalCell.textContent = `KRW ${totalAmount.toLocaleString()}`;
+    if (totalCell) totalCell.textContent = `KRW ${totalAmount.toLocaleString()}`;
+  </script>
+</body>
+
+</html>

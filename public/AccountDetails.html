@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Details</title>
+  <style>
+    body {
+      background-color: #1a1a1a;
+      color: #ccc;
+      font-family: Arial, sans-serif;
+      padding: 60px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 25px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+      background: none;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      width: 100%;
+      padding: 8px 4px;
+      font-size: 14px;
+      color: #ccc;
+      margin-top: 5px;
+    }
+
+    .postal-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .postal-group input {
+      width: 70%;
+    }
+
+    .postal-group button {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .phone-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .phone-group input {
+      width: 100%;
+      text-align: center;
+    }
+
+    .save-btn {
+      display: block;
+      width: 100%;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 12px 0;
+      margin-top: 50px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .phone-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ACCOUNT DETAILS</h2>
+
+    <label for="id">ID*</label>
+    <input type="text" id="id" value="" />
+
+    <label for="password">Password*</label>
+    <input type="password" id="password" />
+
+    <label for="verify-password">Verify Password*</label>
+    <input type="password" id="verify-password" />
+
+    <label for="name">Name*</label>
+    <input type="text" id="name" value="" />
+
+    <label>Postal Code</label>
+    <div class="postal-group">
+      <input type="text" />
+      <button type="button">Search</button>
+    </div>
+
+    <label>Address</label>
+    <input type="text" />
+    <input type="text" style="margin-top: 10px;" />
+
+    <label>Phone*</label>
+    <div class="phone-group">
+      <input type="text" maxlength="3" placeholder="" />
+      <input type="text" maxlength="4" placeholder="" />
+      <input type="text" maxlength="4" placeholder="" />
+    </div>
+
+    <label>Email address*</label>
+    <input type="email" value="" />
+
+    <button class="save-btn">Save Changes</button>
+  </div>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "login.html";
+        return;
+      }
+  
+      // ✅ 자동 입력
+      document.getElementById("id").value = user.email || "";
+      document.getElementById("name").value = user.name || "";
+      document.querySelector("input[type='email']").value = user.email || "";
+    });
+  </script>
+</body>
+</html>

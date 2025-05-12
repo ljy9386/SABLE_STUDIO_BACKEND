@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Search Results | SABLE STUDIO</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard", sans-serif;
+      background-color: #fff; /* 컨텐츠 영역은 흰색 */
+      color: #000;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* 상단 헤더 */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: #fff;      /* 헤더 배경 흰색 */
+      color: #000;           /* 글자색 검정 */
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+    header > div {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    /* 메인 메뉴 */
+    .main-nav {
+      display: flex;
+      list-style: none;
+    }
+    .nav-item {
+      position: relative;
+      margin-right: 30px;
+    }
+    .nav-item a {
+      color: #000;
+      font-size: 14px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .nav-item a:hover {
+      color: #555;
+    }
+
+    /* 드롭다운 서브메뉴 */
+    .submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      padding: 15px 20px;
+      list-style: none;
+      min-width: 180px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+    }
+    .submenu li {
+      font-size: 13px;
+      color: #333;
+      padding: 5px 0;
+    }
+    .submenu li strong {
+      display: block;
+      font-size: 13px;
+      color: #000;
+      margin-bottom: 10px;
+    }
+    .dropdown:hover .submenu {
+      display: block;
+    }
+
+    /* 오른쪽 아이콘 바 */
+    .icon-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      stroke: #000;
+      transition: stroke 0.2s;
+      background: none;
+      border: none;
+    }
+    .icon:hover {
+      stroke: #555;
+    }
+    .cart {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #000;
+    }
+
+    /* 검색창 오버레이 (배경 어둡게) */
+    .search-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 999; /* 헤더보다 위 */
+    }
+
+    /* 검색창 컨테이너 */
+    #search-box {
+      display: none;
+      position: fixed;
+      top: 140px;         /* 헤더 아래 140px 정도 */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1001;      /* 오버레이보다 위 */
+    }
+    .search-container {
+      position: relative;
+      width: 600px;
+      border: 1px solid #000;
+      padding: 20px;
+      background: #fff;   /* 검색창 흰색 배경 */
+      display: flex;
+      align-items: center;
+    }
+    .search-container input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: none;
+      padding: 6px 0;
+    }
+    .search-container label {
+      position: absolute;
+      top: 6px; left: 25px;
+      font-size: 12px;
+      color: #888;
+      pointer-events: none;
+    }
+    .search-icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #000; /* 검정색 아이콘 */
+    }
+    #search-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #000;
+      margin-left: 15px;
+      cursor: pointer;
+    }
+
+    /* 컨텐츠 영역 (헤더 아래) */
+    .content-container {
+      display: flex;
+      margin-top: 100px; /* 헤더 높이만큼 공백 */
+    }
+    /* 왼쪽 필터 영역 */
+    .filter-section {
+      width: 240px;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+    .filter-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .filter-group {
+      margin-bottom: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .filter-group h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .filter-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .filter-group li {
+      margin-bottom: 5px;
+    }
+    .filter-section button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    /* 메인 상품 영역 */
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+    main h1 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .product-card {
+      width: calc(25% - 20px);
+      box-sizing: border-box;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+      padding: 10px;
+      transition: box-shadow 0.2s ease;
+    }
+    .product-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    .price {
+      font-size: 14px;
+      color: #444;
+      margin: 0 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 오버레이 (검정 반투명 배경) -->
+  <div id="search-overlay" class="search-overlay"></div>
+
+  <!-- 검색창 박스 -->
+  <div id="search-box">
+    <div class="search-container">
+      <input type="text" id="search-input" required />
+      <label for="search-input">Search</label>
+      <button id="search-submit" class="search-icon-button">
+        <!-- 검색 버튼 (돋보기) -->
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24" fill="none" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <button id="search-close">✕</button>
+    </div>
+  </div>
+
+  <!-- 상단 헤더 -->
+  <header>
+    <!-- 왼쪽: 사이트명 -->
+    <a href="index.html">SABLE STUDIO</a>
+
+    <!-- 중앙: 메인 메뉴 -->
+    <nav>
+      <ul class="main-nav">
+        <li class="nav-item"><a href="new.html">NEW</a></li>
+        <li class="nav-item dropdown">
+          <a href="#">TOP</a>
+          <ul class="submenu">
+            <li><strong>TOP</strong></li>
+            <li class="nav-item"><a href="SHIRT.html">SHIRT</a></li>
+            <li class="nav-item"><a href="KNITWEAR.html">KNITWEAR</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="#">BOTTOM</a>
+          <ul class="submenu">
+            <li><strong>BOTTOM</strong></li>
+            <li class="nav-item"><a href="PANTS.html">PANTS</a></li>
+            <li class="nav-item"><a href="SKIRTS.html">SKIRTS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="#">OUTER WEAR</a>
+          <ul class="submenu">
+            <li><strong>OUTER WEAR</strong></li>
+            <li class="nav-item"><a href="COATS.html">COATS</a></li>
+            <li class="nav-item"><a href="JACKETS.html">JACKETS</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a href="shoes.html">SHOES</a></li>
+      </ul>
+    </nav>
+
+    <!-- 오른쪽: 아이콘들 -->
+    <div class="icon-bar">
+      <!-- 검색 아이콘 (검색창 열기) -->
+      <button id="search-toggle" class="icon">
+        <!-- 크기 24px, stroke 검정 -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+             viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <a href="#" id="user-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke-width="1.5" stroke-linecap="round"
+             stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M16 20c0-2-4-3-4-3s-4 1-4 3"/>
+        </svg>
+      </a>
+      <a href="wishlist.html">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke-width="1.5" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M20.8 4.6c-1.4-1.4-3.7-1.4-5.1 0L12 8.3 8.3 4.6c-1.4-1.4-3.7-1.4-5.1
+                   0s-1.4 3.7 0 5.1l3.7 3.7 5.1 5.1 5.1-5.1 3.7-3.7c1.4-1.4
+                   1.4-3.7 0-5.1z"/>
+        </svg>
+      </a>
+      <a href="cart.html">
+        <div class="cart">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 24 24" fill="none" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6h15l-1.5 9h-13z"/>
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="18" cy="21" r="1"/>
+          </svg>
+          <span>0</span>
+        </div>
+      </a>
+    </div>
+  </header>
+
+  <!-- 컨텐츠 영역: 필터 섹션 + 메인 상품 영역 -->
+  <div class="content-container">
+    <!-- 왼쪽 필터 섹션 -->
+    <aside class="filter-section">
+      <h2>FILTER</h2>
+      <!-- 카테고리 필터 -->
+      <div class="filter-group">
+        <h3>CATEGORY</h3>
+        <ul>
+          <li><label><input type="checkbox" value="shirt" onchange="applyFilters()"> Shirt</label></li>
+          <li><label><input type="checkbox" value="knitwear" onchange="applyFilters()"> Knitwear</label></li>
+          <li><label><input type="checkbox" value="skirt" onchange="applyFilters()"> Skirt</label></li>
+          <li><label><input type="checkbox" value="pants" onchange="applyFilters()"> Pants</label></li>
+          <li><label><input type="checkbox" value="coats" onchange="applyFilters()"> Coats</label></li>
+          <li><label><input type="checkbox" value="jacket" onchange="applyFilters()"> Jacket</label></li>
+          <li><label><input type="checkbox" value="shoes" onchange="applyFilters()"> Shoes</label></li>
+        </ul>
+      </div>
+      <!-- 의류 사이즈 필터 -->
+      <div class="filter-group">
+        <h3>SIZE</h3>
+        <ul>
+          <li><label><input type="checkbox" value="s" onchange="applyFilters()"> S</label></li>
+          <li><label><input type="checkbox" value="m" onchange="applyFilters()"> M</label></li>
+          <li><label><input type="checkbox" value="l" onchange="applyFilters()"> L</label></li>
+          <li><label><input type="checkbox" value="xl" onchange="applyFilters()"> XL</label></li>
+          <li><label><input type="checkbox" value="xxl" onchange="applyFilters()"> XXL</label></li>
+        </ul>
+      </div>
+      <!-- 신발 사이즈 필터 -->
+      <div class="filter-group">
+        <h3>SHOE SIZE</h3>
+        <ul>
+          <li><label><input type="checkbox" value="240" onchange="applyFilters()"> 240</label></li>
+          <li><label><input type="checkbox" value="245" onchange="applyFilters()"> 245</label></li>
+          <li><label><input type="checkbox" value="250" onchange="applyFilters()"> 250</label></li>
+          <li><label><input type="checkbox" value="255" onchange="applyFilters()"> 255</label></li>
+          <li><label><input type="checkbox" value="260" onchange="applyFilters()"> 260</label></li>
+          <li><label><input type="checkbox" value="265" onchange="applyFilters()"> 265</label></li>
+          <li><label><input type="checkbox" value="270" onchange="applyFilters()"> 270</label></li>
+          <li><label><input type="checkbox" value="275" onchange="applyFilters()"> 275</label></li>
+          <li><label><input type="checkbox" value="280" onchange="applyFilters()"> 280</label></li>
+        </ul>
+      </div>
+      <!-- 컬러 필터 -->
+      <div class="filter-group">
+        <h3>COLOR</h3>
+        <ul>
+          <li><label><input type="checkbox" value="black" onchange="applyFilters()"> Black</label></li>
+          <li><label><input type="checkbox" value="white" onchange="applyFilters()"> White</label></li>
+          <li><label><input type="checkbox" value="grey" onchange="applyFilters()"> Grey</label></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- 오른쪽 메인 영역 (검색 결과) -->
+    <main>
+      <h1 id="result-title"></h1>
+      <div id="results" class="product-grid"></div>
+    </main>
+  </div>
+
+  <script>
+    // ────────── 드롭다운 열기/닫기 ──────────
+    function toggleDropdown(id) {
+      const dropdown = document.getElementById(id);
+      dropdown.classList.toggle('active');
+    }
+
+    // ────────── 검색창 열기/닫기 ──────────
+    const searchToggle = document.getElementById("search-toggle");
+    const searchBox = document.getElementById("search-box");
+    const searchClose = document.getElementById("search-close");
+    const searchInput = document.getElementById("search-input");
+    const searchSubmit = document.getElementById("search-submit");
+    const searchOverlay = document.getElementById("search-overlay");
+
+    // 검색창 열기
+    searchToggle.onclick = () => {
+      searchBox.style.display = "block";
+      searchOverlay.style.display = "block";
+      searchInput.focus();
+    };
+    // 검색창 닫기
+    searchClose.onclick = () => {
+      searchBox.style.display = "none";
+      searchOverlay.style.display = "none";
+    };
+    // overlay 클릭 시 닫기
+    searchOverlay.onclick = () => {
+      searchBox.style.display = "none";
+      searchOverlay.style.display = "none";
+    };
+
+    // 실제 검색 동작
+    function goSearch() {
+      const keyword = searchInput.value.trim();
+      if (keyword) {
+        const encoded = encodeURIComponent(keyword);
+        location.href = `search.html?q=${encoded}`;
+      }
+    }
+    // Enter 키로 검색
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        goSearch();
+      }
+    });
+    // 돋보기 버튼으로 검색
+    searchSubmit.onclick = goSearch;
+
+    // ────────── 필터/상품 로직 ──────────
+    function getSearchQuery() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('q') ? params.get('q').toLowerCase() : "";
+    }
+    function getSelectedValues(selector) {
+      const checkboxes = document.querySelectorAll(selector);
+      let values = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) values.push(cb.value.toLowerCase());
+      });
+      return values;
+    }
+
+    const allProducts = [
+      {
+        "name": "COTTON CANVAS LACE-UP BIKER BOOTS",
+        "price": "₩689,000",
+        "image": "img/COTTON CANVAS LACE-UP BIKER BOOTS.webp",
+        "category": "boots",
+        "size": "240",
+        "color": "Black"
+      },
+      {
+        "name": "Y’s × Dr. Martens 10 EYE Y's BLACK CLASSIC BOOTS",
+        "price": "₩1,212,000",
+        "image": "img/Y’s × Dr. Martens 10 EYE Y's BLACK CLASSIC CALF.webp",
+        "category": "boots",
+        "size": "250",
+        "color": "Black"
+      },
+      {
+        "name": "Y's × Flower MOUNTAIN PUMAPUNK BOOTS",
+        "price": "₩617,500",
+        "image": "img/Y's × Flower MOUNTAIN PUMAPUNK.webp",
+        "category": "boots",
+        "size": "235",
+        "color": "Brown"
+      },
+      {
+        "name": "CACTUS DESIGN PRINT LOW-CUT CANVAS SNEAKER",
+        "price": "₩774,000",
+        "image": "img/CACTUS DESIGN PRINT LOW-CUT CANVAS SNEAKER.webp",
+        "category": "sneakers",
+        "size": "240",
+        "color": "White"
+      },
+      {
+        "name": "TA TUXEDO SHIRT WITH STAND COLLAR",
+        "price": "₩912,000",
+        "image": "img/TA TUXEDO SHIRT WITH STAND COLLAR.webp",
+        "category": "shirt",
+        "size": "M",
+        "color": "Black"
+      },
+      {
+        "name": "CREPE DE CHINE FRONT DOLMAN BIG SHIRT SHORT SLEEVES",
+        "price": "₩634,000",
+        "image": "img/CREPE DE CHINE FRONT DOLMAN BIG SHIRT SHORT SLEEVES.webp",
+        "category": "shirt",
+        "size": "S",
+        "color": "White"
+      },
+      {
+        "name": "FEMALE DESIGN LONG BLOUSE",
+        "price": "₩2,777,000",
+        "image": "img/FEMALE DESIGN LONG BLOUSE.webp",
+        "category": "blouse",
+        "size": "M",
+        "color": "White"
+      },
+      {
+        "name": "FLAMES PATTERN ASYMMETRICAL JACKET",
+        "price": "₩712,500",
+        "image": "img/FLAMES PATTERN ASYMMETRICAL JACKET.webp",
+        "category": "jacket",
+        "size": "L",
+        "color": "Black"
+      }
+    ];
+
+    // 필터 적용하여 상품 표시
+    function applyFilters() {
+      const query = getSearchQuery();
+      let selectedCategories = [];
+      let selectedSizes = [];
+      let selectedColors = [];
+
+      if (query.includes("boot")) {
+        selectedCategories = getSelectedValues('#shoes-category-dropdown input[type="checkbox"]');
+        selectedSizes = getSelectedValues('#shoes-size-dropdown input[type="checkbox"]');
+        selectedColors = getSelectedValues('#shoes-color-dropdown input[type="checkbox"]');
+      } else if (query.includes("shirt")) {
+        selectedCategories = getSelectedValues('#shirts-category-dropdown input[type="checkbox"]');
+        selectedSizes = getSelectedValues('#shirts-size-dropdown input[type="checkbox"]');
+        selectedColors = getSelectedValues('#shirts-color-dropdown input[type="checkbox"]');
+      }
+
+      const resultTitle = document.getElementById("result-title");
+      resultTitle.textContent = query ? query.toUpperCase() : "ALL PRODUCTS";
+
+      let filtered = allProducts.filter(p => {
+        let match = true;
+        // 검색어(상품명)
+        if (query && !p.name.toLowerCase().includes(query)) {
+          match = false;
+        }
+        // 카테고리
+        if (selectedCategories.length > 0 && !selectedCategories.includes(p.category.toLowerCase())) {
+          match = false;
+        }
+        // 사이즈
+        if (selectedSizes.length > 0 && !selectedSizes.includes(p.size.toLowerCase())) {
+          match = false;
+        }
+        // 색상
+        if (selectedColors.length > 0 && !selectedColors.includes(p.color.toLowerCase())) {
+          match = false;
+        }
+        return match;
+      });
+      renderProducts(filtered);
+    }
+
+    function renderProducts(products) {
+      const resultsContainer = document.getElementById("results");
+      resultsContainer.innerHTML = "";
+      if (products.length === 0) {
+        resultsContainer.innerHTML = "<p>검색 결과가 없습니다.</p>";
+      } else {
+        products.forEach(product => {
+          const div = document.createElement("div");
+          div.className = "product-card";
+          div.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <div class="product-name">${product.name}</div>
+            <div class="price">${product.price}</div>
+          `;
+          resultsContainer.appendChild(div);
+        });
+      }
+    }
+
+    // 페이지 로드시 필터/검색 적용
+    applyFilters();
+
+    // 사용자 아이콘 클릭 시 (예시)
+    document.getElementById("user-icon").onclick = (e) => {
+      e.preventDefault();
+      // 로그인 여부 체크 등 필요한 로직
+      window.location.href = "mypage.html";
+    };
+  </script>
+</body>
+</html>
